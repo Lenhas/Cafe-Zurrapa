@@ -1,0 +1,427 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package GUI;
+import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
+/**
+ *
+ * @author Utilizador
+ */
+public class adicionar_pedido extends javax.swing.JFrame {
+
+    /**
+     * Creates new form adicionar_pedido
+     */
+    int id_pedido=0;
+    public adicionar_pedido() {
+        initComponents();
+    }
+      public adicionar_pedido(int a) {
+        initComponents();
+        id_pedido=a;
+        mostrar_produto(id_pedido);
+        fill_Combo(id_pedido);
+       
+    }
+      
+       public ArrayList <produto_pedido> produto_pedido_info(int id_pedido) {//armazenar info da tabela pedido
+         ArrayList <produto_pedido> produto_pedido_info = new ArrayList<>();
+         try{
+        Connection con = ConnectionProvider.Connector();
+        String query ="SELECT produto.id_produto,produto.nome,produto.tipo,produto.preco,stock.qtd from pedido inner join mesa on pedido.id_mesa=mesa.id_mesa inner join bar on mesa.id_bar=bar.id_bar inner join stock on bar.id_bar=stock.id_bar inner join produto on produto.id_produto=stock.id_produto WHERE id_pedido= ?";
+        PreparedStatement pst= con.prepareStatement(query);
+        pst.setInt(1,id_pedido);
+        ResultSet rs=pst.executeQuery();
+        
+        produto_pedido p;
+        while(rs.next()){
+            p=new produto_pedido(rs.getInt("id_produto"),rs.getString("nome"),rs.getString("tipo"),rs.getDouble("preco"),rs.getInt("qtd"));
+            produto_pedido_info.add(p);
+        }
+         }catch(Exception e){
+             JOptionPane.showMessageDialog(null, e);
+         }
+         return produto_pedido_info;
+    }
+        public void mostrar_produto(int id_pedido){//distribuir info da tabela mesa na jtable
+        ArrayList<produto_pedido> lista =produto_pedido_info(id_pedido);
+        DefaultTableModel model =(DefaultTableModel)tabela_produtos.getModel();
+        Object[]  row= new Object [5];
+        for (int i = 0; i < lista.size(); i++) {
+            row[0]=lista.get(i).getId_produto();
+            row[1]=lista.get(i).getNome();
+            row[2]=lista.get(i).getTipo();
+            row[3]=lista.get(i).getPreco();
+            row[4]=lista.get(i).getStock();
+            model.addRow(row);
+            
+        }
+        }
+           public void fill_Combo(int id_pedido){
+        try{
+            Connection con = ConnectionProvider.Connector();
+            String query ="SELECT stock.id_produto from pedido inner join mesa on pedido.id_mesa=mesa.id_mesa inner join bar on mesa.id_bar=bar.id_bar inner join stock on bar.id_bar=stock.id_bar  WHERE id_pedido= ?";
+            PreparedStatement pst= con.prepareStatement(query);
+            pst.setInt(1,id_pedido);
+            ResultSet rs=pst.executeQuery();
+                  while(rs.next()){
+                    String s =String.valueOf(rs.getInt("id_produto"));
+                    produto_comboBox.addItem(s);
+        }
+            pst.close();
+            rs.close();
+            
+            
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(null, e);
+            
+        }
+        
+    }
+              public ArrayList <pedido> pedido_info(int id_pedido) {//armazenar info da tabela pedido
+         ArrayList <pedido> pedido_info = new ArrayList<>();
+         try{
+        Connection con = ConnectionProvider.Connector();
+        String query ="select produto.nome , qtd from pedido_info inner join produto on pedido_info.id_produto=produto.id_produto where id_pedido=?";
+        PreparedStatement pst= con.prepareStatement(query);
+        pst.setInt(1,id_pedido);
+        ResultSet rs=pst.executeQuery();
+        
+      pedido p;
+        while(rs.next()){
+            p=new pedido(rs.getString("nome"),rs.getInt("qtd"));
+            pedido_info.add(p);
+        }
+        pst.close();
+        rs.close();
+         }catch(Exception e){
+             JOptionPane.showMessageDialog(null, e);
+         }
+         return pedido_info;
+    }
+        public void mostrar_pedido(int id_pedido){//distribuir info da tabela mesa na jtable
+        ArrayList<pedido> lista =pedido_info(id_pedido);
+        DefaultTableModel model =(DefaultTableModel)tabela_pedido.getModel();
+        Object[]  row= new Object [2];
+        for (int i = 0; i < lista.size(); i++) {
+            row[0]=lista.get(i).getNome();
+            row[1]=lista.get(i).getQtd();
+            model.addRow(row);
+            
+        }
+        }
+
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tabela_produtos = new javax.swing.JTable();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        tabela_pedido = new javax.swing.JTable();
+        produto_comboBox = new javax.swing.JComboBox<>();
+        quantidade_comboBox = new javax.swing.JComboBox<>();
+        jLabel2 = new javax.swing.JLabel();
+        botao_adicionar = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        tabela_produtos.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Id_produto", "nome", "tipo", "preço", "stock"
+            }
+        ));
+        jScrollPane1.setViewportView(tabela_produtos);
+
+        jLabel1.setText("Produtos do Bar:");
+
+        tabela_pedido.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "porduto", "quantidade"
+            }
+        ));
+        jScrollPane2.setViewportView(tabela_pedido);
+
+        produto_comboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                produto_comboBoxActionPerformed(evt);
+            }
+        });
+
+        quantidade_comboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8" }));
+
+        jLabel2.setText("pedido:");
+
+        botao_adicionar.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        botao_adicionar.setText("Adicionar");
+        botao_adicionar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botao_adicionarActionPerformed(evt);
+            }
+        });
+
+        jButton1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jButton1.setText("Acabar");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel3.setText("Id-Produto");
+
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        jLabel4.setText("Quantidade");
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(13, 13, 13)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(botao_adicionar, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 73, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(produto_comboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(quantidade_comboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(51, 51, 51)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(60, 60, 60)
+                        .addComponent(jLabel2))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 24, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane2)
+                            .addComponent(jScrollPane1)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(52, 52, 52)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(produto_comboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
+                        .addGap(62, 62, 62)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(quantidade_comboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4))
+                        .addGap(125, 125, 125)
+                        .addComponent(botao_adicionar, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(36, Short.MAX_VALUE))
+        );
+
+        pack();
+        setLocationRelativeTo(null);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void produto_comboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_produto_comboBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_produto_comboBoxActionPerformed
+
+    private void botao_adicionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botao_adicionarActionPerformed
+
+        try{
+        Connection con = ConnectionProvider.Connector();
+        
+        String id_produto_temp = produto_comboBox.getSelectedItem().toString();
+        String qtd_temp = quantidade_comboBox.getSelectedItem().toString();
+        int id_produto=Integer.parseInt(id_produto_temp);
+        int qtd=Integer.parseInt(qtd_temp);
+        int qtd_stock=0;
+        int id_bar=0;
+        String query5 ="SELECT stock.qtd from pedido inner join mesa on pedido.id_mesa=mesa.id_mesa inner join bar on mesa.id_bar=bar.id_bar inner join stock on bar.id_bar=stock.id_bar  WHERE id_pedido = ? and id_produto=?";
+        PreparedStatement pst5= con.prepareStatement(query5);
+        pst5.setInt(1,id_pedido);
+         pst5.setInt(2,id_produto);
+        ResultSet rs5=pst5.executeQuery();
+                   while(rs5.next()){
+                qtd_stock=rs5.getInt("qtd");
+                   }
+        String query1 ="SELECT mesa.id_bar from pedido inner join mesa on pedido.id_mesa=mesa.id_mesa  WHERE id_pedido= ?";
+        PreparedStatement pst1= con.prepareStatement(query1);
+        pst1.setInt(1,id_pedido);
+        ResultSet rs1=pst1.executeQuery();
+                   while(rs1.next()){
+                id_bar=rs1.getInt("id_bar");
+                   }        
+                   
+                  pst1.close();
+                  rs1.close();
+                  pst5.close();
+                  rs5.close();
+        
+                   if(qtd_stock>=qtd){
+                  String query7 ="SELECT *from pedido_info where id_pedido=? and id_bar=? and id_produto=?";
+                  PreparedStatement pst7= con.prepareStatement(query7);
+                  pst7.setInt(1,id_pedido);
+                  pst7.setInt(2,id_bar);
+                  pst7.setInt(3,id_produto);
+                  ResultSet rs7=pst7.executeQuery();
+                    if(rs7.next() == false){   
+                  String insert ="insert into pedido_info(id_pedido,id_bar,id_produto,qtd) values(?, ?, ?,?)";
+                  PreparedStatement pst2= con.prepareStatement(insert);
+                  pst2.setInt(1,id_pedido);
+                  pst2.setInt(2,id_bar);
+                  pst2.setInt(3,id_produto);
+                  pst2.setInt(4,qtd);
+                  pst2.executeUpdate();
+                  
+                  
+                  }else{
+                        
+                 
+                  String update ="UPDATE  pedido_info set qtd  = qtd + ?  where id_pedido= ? and id_bar= ? and id_produto=? ";
+                  PreparedStatement pst8= con.prepareStatement(update);
+                  pst8.setInt(1,qtd);
+                  pst8.setInt(2,id_pedido);
+                  pst8.setInt(3,id_bar);
+                  pst8.setInt(4,id_produto);
+                  pst8.executeUpdate();
+                     pst8.close();
+                  
+                        
+                    }
+                    pst7.close();
+                    rs7.close();
+                   
+                  
+                 String query6 ="UPDATE stock set qtd=? where id_bar=? and id_produto=?";
+                 PreparedStatement pst6= con.prepareStatement(query6);
+                 pst6.setInt(1,(qtd_stock-qtd));
+                 pst6.setInt(2,id_bar);
+                 pst6.setInt(3,id_produto);
+                 pst6.executeUpdate();
+                 
+                 pst6.close();
+                    
+                 
+                 
+                  DefaultTableModel dm1 = (DefaultTableModel)tabela_pedido.getModel();
+                  while(dm1.getRowCount() > 0)
+                        {
+                            dm1.removeRow(0);
+                        }
+                 mostrar_pedido( id_pedido);
+                 DefaultTableModel dm = (DefaultTableModel)tabela_produtos.getModel();
+                  while(dm.getRowCount() > 0)
+                        {
+                            dm.removeRow(0);
+                        }
+                 mostrar_produto(id_pedido);
+                   }else{
+                       JOptionPane.showMessageDialog(null, "Não temos stock suficiente no bar, pedimos desculpa!!");
+                   }
+
+        }catch(Exception e){
+             JOptionPane.showMessageDialog(null, e);
+        }
+    }//GEN-LAST:event_botao_adicionarActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        setVisible(false);
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(adicionar_pedido.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(adicionar_pedido.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(adicionar_pedido.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(adicionar_pedido.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+
+        /* Create and display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new adicionar_pedido().setVisible(true);
+            }
+        });
+    }
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton botao_adicionar;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JComboBox<String> produto_comboBox;
+    private javax.swing.JComboBox<String> quantidade_comboBox;
+    private javax.swing.JTable tabela_pedido;
+    private javax.swing.JTable tabela_produtos;
+    // End of variables declaration//GEN-END:variables
+}
